@@ -65,16 +65,13 @@ void GetPointsPass::instrumentSyncOperations(Module &M) {
   
 
 Function *GetPointsPass::createLogFunction(Module &M) {
-
-  if (Function *F = M.getFunction("collect_info"))
-    return F;
-    
-  Type *VoidTy = Type::getVoidTy(M.getContext());
-  std::vector<Type*> ParamTypes = {};
-  FunctionType *FuncType = FunctionType::get(VoidTy, ParamTypes, false);
-  
-
-  return Function::Create(FuncType, Function::InternalLinkage, "collect_info");
+  LLVMContext &Context = M.getContext();
+  FunctionCallee* collect=
+      M.getOrInsertFunction("collect_info",FunctionType::get(Type::getVoidTy(Context),
+                            Type::getVoidTy(Context), false));
+  Function *LogFunc = dyn_cast<Function>(collect.getCallee());
+  LogFunc->setDoesNotThrow();
+  return LogFunc;
 }
 
 void GetPointsPass::instrumentGlobalVariableAccess(Module &M) {
