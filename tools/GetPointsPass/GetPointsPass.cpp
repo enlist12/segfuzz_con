@@ -46,7 +46,7 @@ void GetPointsPass::instrumentSyncOperations(Module &M) {
       
     bool isSyncFunc = false;
     for (const auto &SyncFunc : SyncFuncs) {
-      if (FName == SyncFunc || FName.find(SyncFunc) != std::string::npos) {
+      if (FName == SyncFunc || FName.find(SyncFunc) != std::string::npos || FName.find("lock") != std::string::npos) {
         isSyncFunc = true;
         break;
       }
@@ -66,7 +66,7 @@ void GetPointsPass::instrumentSyncOperations(Module &M) {
 
 Function *GetPointsPass::createLogFunction(Module &M) {
   LLVMContext &Context = M.getContext();
-  FunctionCallee* collect=
+  FunctionCallee collect=
       M.getOrInsertFunction("collect_info",FunctionType::get(Type::getVoidTy(Context),
                             Type::getVoidTy(Context), false));
   Function *LogFunc = dyn_cast<Function>(collect.getCallee());
